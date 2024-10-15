@@ -16,6 +16,17 @@
   ],
   "main": "./out/extension.js",
   "contributes": {
+    "languages": [{
+      "id": "l4",
+      "aliases": ["L4", "l4"],
+      "extensions": [".l4"],
+      "configuration": "./language-configuration.json"
+    }],
+    "grammars": [{
+      "language": "l4",
+      "scopeName": "source.l4",
+      "path": "./l4.tmLanguage.json"
+    }],
     "commands": [
       {
         "command": "crlp.helloWorld",
@@ -26,10 +37,14 @@
         "title": "Display Natural Language Preview"
       }
     ],
-    "languages": [
+    "colors": [
       {
-        "id": "l4",
-        "extensions": [".l4"]
+        "id": "l4.booleanOperators",
+        "description": "colour for bool operators in L4",
+        "defaults": {
+          "dark": "#5eb7ff",
+          "light": "#0000FF"
+        }
       }
     ]
   },

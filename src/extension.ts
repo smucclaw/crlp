@@ -1,12 +1,7 @@
 import * as vscode from 'vscode';
+import { generateNaturalLanguage } from './preview';
 
 // nlg
-function generateNaturalLanguage(l4code: string): string {
-  if (l4code.includes("GIVEN dog IS A Dog")) {
-    return "The dog.";
-  } else if (l4code.includes("GIVEN")) {return "given.";}
-  return "no code";
-}
 
 export function activate(context: vscode.ExtensionContext) {
   let panel: vscode.WebviewPanel | undefined;
