@@ -1,10 +1,17 @@
 # crlp README
 
-This is the README for the extension "crlp". After writing up a brief description, we recommend including the following sections.
+This is the README for the extension for "l4" for legislative drafting.
 
 ## Features
 
-It will show a linearisation of the l4 text in a parallel pane.
+It shows linearisation of the l4 in a parallel pane.
+
+Colourisation of boolean operators
+
+
+
+---
+
 
 Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
 
