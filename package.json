@@ -9,7 +9,11 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onLanguage:l4",
+    "onCommand:nlg-preview.showPreview",
+    "onCommand:crlp.helloWorld"
+  ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
@@ -20,6 +24,12 @@
       {
         "command": "nlg-preview.showPreview",
         "title": "Display Natural Language Preview"
+      }
+    ],
+    "languages": [
+      {
+        "id": "l4",
+        "extensions": [".l4"]
       }
     ]
   },

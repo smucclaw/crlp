@@ -2,9 +2,9 @@ import * as vscode from 'vscode';
 
 // nlg
 function generateNaturalLanguage(l4code: string): string {
-  if (l4code.includes("GIVEN")) {
-    return "given.";
-  }
+  if (l4code.includes("GIVEN dog IS A Dog")) {
+    return "The dog.";
+  } else if (l4code.includes("GIVEN")) {return "given.";}
   return "no code";
 }
 
@@ -29,18 +29,6 @@ export function activate(context: vscode.ExtensionContext) {
         panel.webview.html = getWebviewContent("error no preview");
       }
 
-      // listen changes and realtime update
-      vscode.workspace.onDidChangeTextDocument(event => {
-        const editor = vscode.window.activeTextEditor;
-        if (editor && editor.document === event.document) {
-          const dslCode = editor.document.getText();
-          const naturalLanguagePreview = generateNaturalLanguage(dslCode);
-          if (panel) {
-            panel.webview.html = getWebviewContent(naturalLanguagePreview);
-          }
-        }
-      });
-
       // reset preview panel onclose
       panel.onDidDispose(() => {
         panel = undefined;
@@ -48,14 +36,49 @@ export function activate(context: vscode.ExtensionContext) {
     }
   }
 
+  // listen changes and realtime update
+  context.subscriptions.push(vscode.workspace.onDidChangeTextDocument(event => {
+    const editor = vscode.window.activeTextEditor;
+    if (editor && editor.document === event.document) {
+      const l4Code = editor.document.getText();
+      const naturalLanguagePreview = generateNaturalLanguage(l4Code);
+      if (panel) {
+        panel.webview.html = getWebviewContent(naturalLanguagePreview);
+      }
+    }
+  }));
+
   let disposable = vscode.commands.registerCommand('nlg-preview.showPreview', () => {
     showPreview();
   });
 
-  // automatically display preview
-  vscode.workspace.onDidOpenTextDocument(() => {
-    showPreview();
-  });
+  // automatically display preview for opened docs
+  context.subscriptions.push(vscode.workspace.onDidOpenTextDocument((document) => {
+    try {
+      const fileExtension = document.fileName.split('.').pop();
+      if (fileExtension === 'l4') {
+        showPreview();
+      }
+    } catch (error) {
+      console.error('error in onDidOpenTextDocument:', error);
+    }
+  }));
+
+  // automatically display preview for new docs
+  context.subscriptions.push(vscode.workspace.onDidCreateFiles((event) => {
+    try {
+      for (const file of event.files) {
+        if (file.fsPath.endsWith('.l4')) {
+          vscode.workspace.openTextDocument(file).then((document) => {
+            vscode.window.showTextDocument(document);
+            showPreview();
+          });
+        }
+      }
+    } catch (error) {
+      console.error('error in onDidCreateFiles:', error);
+    }
+  }));
 
   context.subscriptions.push(disposable);
 }
