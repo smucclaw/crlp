@@ -1,0 +1,15 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "L4",
+  "patterns": [
+    {
+      "name": "keyword.control.l4",
+      "match": "\\b(IF|AND|OR)\\b"
+    },
+    {
+      "name": "keyword.other.l4",
+      "match": "\\b(DECIDE|IS|IS A)\\b"
+    }
+  ],
+  "scopeName": "source.l4"
+}

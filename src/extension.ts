@@ -6,39 +6,76 @@ import { generateNaturalLanguage } from './preview';
 export function activate(context: vscode.ExtensionContext) {
   let panel: vscode.WebviewPanel | undefined;
 
-  function showPreview() {
+  async function showPreview() {
     if (!panel) {
       panel = vscode.window.createWebviewPanel(
         'nlgPreview',
         'Natural Language Preview',
         vscode.ViewColumn.Beside,
-        {} // MAYBE TODO: Webview options
+        {}
       );
 
       const editor = vscode.window.activeTextEditor;
       if (editor) {
+        // Check if cabal project path is configured
+        const config = vscode.workspace.getConfiguration('l4preview');
+        const cabalProjectPath = config.get<string>('cabalProjectPath');
+
+        if (!cabalProjectPath) {
+          panel.webview.html = getWebviewContent(
+            'Error: no Cabal project path. Please set cabalProjectPath in settings.'
+          );
+          return;
+        }
+
         const l4code = editor.document.getText();
-        const naturalLanguagePreview = generateNaturalLanguage(l4code);
-        panel.webview.html = getWebviewContent(naturalLanguagePreview);
+        try {
+          const naturalLanguagePreview = await generateNaturalLanguage(l4code, context);
+          panel.webview.html = getWebviewContent(naturalLanguagePreview);
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          panel.webview.html = getWebviewContent(`Error: ${errorMessage}`);
+          
+          // Show error message in VS Code
+          vscode.window.showErrorMessage(`L4 Preview Error: ${errorMessage}`);
+        }
       } else {
-        panel.webview.html = getWebviewContent("error no preview");
+        panel.webview.html = getWebviewContent("Error: No active editor");
       }
 
-      // reset preview panel onclose
       panel.onDidDispose(() => {
         panel = undefined;
       });
     }
   }
 
-  // listen changes and realtime update
-  context.subscriptions.push(vscode.workspace.onDidChangeTextDocument(event => {
+  context.subscriptions.push(vscode.workspace.onDidChangeTextDocument(async event => {
     const editor = vscode.window.activeTextEditor;
     if (editor && editor.document === event.document) {
+      const config = vscode.workspace.getConfiguration('l4preview');
+      const cabalProjectPath = config.get<string>('cabalProjectPath');
+
+      if (!cabalProjectPath) {
+        if (panel) {
+          panel.webview.html = getWebviewContent(
+            'Error: Cabal project path not configured. Please set l4preview.cabalProjectPath in settings.'
+          );
+        }
+        return;
+      }
+
       const l4Code = editor.document.getText();
-      const naturalLanguagePreview = generateNaturalLanguage(l4Code);
-      if (panel) {
-        panel.webview.html = getWebviewContent(naturalLanguagePreview);
+      try {
+        const naturalLanguagePreview = await generateNaturalLanguage(l4Code, context);
+        if (panel) {
+          panel.webview.html = getWebviewContent(naturalLanguagePreview);
+        }
+      } catch (error) {
+        if (panel) {
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          panel.webview.html = getWebviewContent(`Error: ${errorMessage}`);
+          vscode.window.showErrorMessage(`L4 Preview Error: ${errorMessage}`);
+        }
       }
     }
   }));
@@ -46,34 +83,6 @@ export function activate(context: vscode.ExtensionContext) {
   let disposable = vscode.commands.registerCommand('nlg-preview.showPreview', () => {
     showPreview();
   });
-
-  // automatically display preview for opened docs
-  context.subscriptions.push(vscode.workspace.onDidOpenTextDocument((document) => {
-    try {
-      const fileExtension = document.fileName.split('.').pop();
-      if (fileExtension === 'l4') {
-        showPreview();
-      }
-    } catch (error) {
-      console.error('error in onDidOpenTextDocument:', error);
-    }
-  }));
-
-  // automatically display preview for new docs
-  context.subscriptions.push(vscode.workspace.onDidCreateFiles((event) => {
-    try {
-      for (const file of event.files) {
-        if (file.fsPath.endsWith('.l4')) {
-          vscode.workspace.openTextDocument(file).then((document) => {
-            vscode.window.showTextDocument(document);
-            showPreview();
-          });
-        }
-      }
-    } catch (error) {
-      console.error('error in onDidCreateFiles:', error);
-    }
-  }));
 
   context.subscriptions.push(disposable);
 }

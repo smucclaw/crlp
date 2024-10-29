@@ -16,6 +16,15 @@
   ],
   "main": "./out/extension.js",
   "contributes": {
+    "configuration": {
+      "properties": {
+        "crlp.cabalProjectPath": {
+          "type": "string",
+          "default": "",
+          "description": "Path to the lam4 cabal project directory"
+        }
+      }
+    },
     "languages": [{
       "id": "l4",
       "aliases": ["L4", "l4"],
