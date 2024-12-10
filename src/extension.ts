@@ -1,108 +1,71 @@
 import * as vscode from 'vscode';
-import { generateNaturalLanguage } from './preview';
-
-// nlg
+import { startDevServer } from './dev-server';
 
 export function activate(context: vscode.ExtensionContext) {
   let panel: vscode.WebviewPanel | undefined;
+  let devServer: { dispose: () => void } | undefined;
 
-  async function showPreview() {
-    if (!panel) {
-      panel = vscode.window.createWebviewPanel(
-        'nlgPreview',
-        'Natural Language Preview',
-        vscode.ViewColumn.Beside,
-        {}
-      );
-
-      const editor = vscode.window.activeTextEditor;
-      if (editor) {
-        // Check if cabal project path is configured
-        const config = vscode.workspace.getConfiguration('l4preview');
-        const cabalProjectPath = config.get<string>('cabalProjectPath');
-
-        if (!cabalProjectPath) {
-          panel.webview.html = getWebviewContent(
-            'Error: no Cabal project path. Please set cabalProjectPath in settings.'
-          );
-          return;
-        }
-
-        const l4code = editor.document.getText();
-        try {
-          const naturalLanguagePreview = await generateNaturalLanguage(l4code, context);
-          panel.webview.html = getWebviewContent(naturalLanguagePreview);
-        } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : String(error);
-          panel.webview.html = getWebviewContent(`Error: ${errorMessage}`);
-          
-          // Show error message in VS Code
-          vscode.window.showErrorMessage(`L4 Preview Error: ${errorMessage}`);
-        }
-      } else {
-        panel.webview.html = getWebviewContent("Error: No active editor");
+  function createWebview() {
+    panel = vscode.window.createWebviewPanel(
+      'sveltePreview',
+      'Vis Preview',
+      vscode.ViewColumn.Beside,
+      {
+        enableScripts: true
       }
+    );
 
-      panel.onDidDispose(() => {
-        panel = undefined;
-      });
-    }
+    const liveReloadScript = `
+      <script src="/socket.io/socket.io.js"></script>
+      <script>
+        const socket = io('http://localhost:3000');
+        socket.on('fileChanged', (data) => {
+          console.log('File changed:', data.path);
+          window.location.reload();
+        });
+      </script>
+    `;
+
+    panel.webview.html = `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Visualisation</title>
+      </head>
+      <body>
+        <iframe 
+          src="http://localhost:3000" 
+          style="position:fixed; top:0; left:0; bottom:0; right:0; width:100%; height:100%; border:none; margin:0; padding:0; overflow:hidden; z-index:900;"
+        ></iframe>
+        <script src="/socket.io/socket.io.js"></script>
+        <script>
+          const socket = io('http://localhost:3000');
+          socket.on('fileChanged', (data) => {
+            console.log('File changed:', data.path);
+            window.location.reload();
+          });
+        </script>
+      </body>
+      </html>
+    `;
+
+    panel.onDidDispose(() => {
+      panel = undefined;
+    });
   }
 
-  context.subscriptions.push(vscode.workspace.onDidChangeTextDocument(async event => {
-    const editor = vscode.window.activeTextEditor;
-    if (editor && editor.document === event.document) {
-      const config = vscode.workspace.getConfiguration('l4preview');
-      const cabalProjectPath = config.get<string>('cabalProjectPath');
+  devServer = startDevServer(context);
 
-      if (!cabalProjectPath) {
-        if (panel) {
-          panel.webview.html = getWebviewContent(
-            'Error: Cabal project path not configured. Please set l4preview.cabalProjectPath in settings.'
-          );
-        }
-        return;
-      }
-
-      const l4Code = editor.document.getText();
-      try {
-        const naturalLanguagePreview = await generateNaturalLanguage(l4Code, context);
-        if (panel) {
-          panel.webview.html = getWebviewContent(naturalLanguagePreview);
-        }
-      } catch (error) {
-        if (panel) {
-          const errorMessage = error instanceof Error ? error.message : String(error);
-          panel.webview.html = getWebviewContent(`Error: ${errorMessage}`);
-          vscode.window.showErrorMessage(`L4 Preview Error: ${errorMessage}`);
-        }
-      }
-    }
-  }));
-
-  let disposable = vscode.commands.registerCommand('nlg-preview.showPreview', () => {
-    showPreview();
+  let disposable = vscode.commands.registerCommand('svelte-preview.show', () => {
+    createWebview();
   });
 
-  context.subscriptions.push(disposable);
-}
-
-// Webview HTML
-function getWebviewContent(naturalLanguagePreview: string): string {
-  return `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Natural Language Preview</title>
-    </head>
-    <body>
-      <h1>Natural Language Preview</h1>
-      <p>${naturalLanguagePreview}</p>
-    </body>
-    </html>
-  `;
+  context.subscriptions.push(
+    disposable,
+    { dispose: () => devServer?.dispose() }
+  );
 }
 
 export function deactivate() {}

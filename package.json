@@ -25,17 +25,26 @@
         }
       }
     },
-    "languages": [{
-      "id": "l4",
-      "aliases": ["L4", "l4"],
-      "extensions": [".l4"],
-      "configuration": "./language-configuration.json"
-    }],
-    "grammars": [{
-      "language": "l4",
-      "scopeName": "source.l4",
-      "path": "./l4.tmLanguage.json"
-    }],
+    "languages": [
+      {
+        "id": "l4",
+        "aliases": [
+          "L4",
+          "l4"
+        ],
+        "extensions": [
+          ".l4"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "l4",
+        "scopeName": "source.l4",
+        "path": "./l4.tmLanguage.json"
+      }
+    ],
     "commands": [
       {
         "command": "crlp.helloWorld",
@@ -66,14 +75,19 @@
     "test": "vscode-test"
   },
   "devDependencies": {
-    "@types/vscode": "^1.94.0",
+    "@types/express": "^5.0.0",
     "@types/mocha": "^10.0.8",
     "@types/node": "20.x",
+    "@types/vscode": "^1.94.0",
     "@typescript-eslint/eslint-plugin": "^8.7.0",
     "@typescript-eslint/parser": "^8.7.0",
-    "eslint": "^9.11.1",
-    "typescript": "^5.6.2",
     "@vscode/test-cli": "^0.0.10",
-    "@vscode/test-electron": "^2.4.1"
+    "@vscode/test-electron": "^2.4.1",
+    "chokidar": "^4.0.1",
+    "cors": "^2.8.5",
+    "eslint": "^9.11.1",
+    "express": "^4.21.2",
+    "socket.io": "^4.8.1",
+    "typescript": "^5.6.2"
   }
 }
