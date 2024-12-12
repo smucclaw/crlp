@@ -10,7 +10,7 @@
   "categories": [
     "Other"
   ],
-  "main": "./out/viz.js",
+  "main": "./dist/viz.bundle.js",
   "contributes": {
     "commands": [
       {
@@ -34,17 +34,23 @@
     "start": "node ./out/viz.js"
   },
   "devDependencies": {
+    "@babel/preset-env": "^7.26.0",
     "@types/mocha": "^10.0.8",
     "@types/node": "20.x",
-    "@types/vscode": "^1.94.0",
+    "@types/vscode": "^1.96.0",
     "@typescript-eslint/eslint-plugin": "^8.7.0",
     "@typescript-eslint/parser": "^8.7.0",
     "@vscode/test-cli": "^0.0.10",
     "@vscode/test-electron": "^2.4.1",
+    "babel-loader": "^9.2.1",
     "eslint": "^9.11.1",
-    "typescript": "^5.6.2"
+    "typescript": "^5.6.2",
+    "webpack": "^5.97.1",
+    "webpack-cli": "^5.1.4",
+    "webpack-node-externals": "^3.0.0"
   },
   "dependencies": {
-    "ladder-diagram": "^2.0.3"
+    "ladder-diagram": "^2.0.3",
+    "ts-loader": "^9.5.1"
   }
 }
