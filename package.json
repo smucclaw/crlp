@@ -10,7 +10,7 @@
   "categories": [
     "Other"
   ],
-  "main": "./out/viz.js",
+  "main": "./dist/viz.js",
   "contributes": {
     "commands": [
       {
@@ -24,14 +24,14 @@
     ]
   },
   "scripts": {
-    "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
+    "vscode:prepublish": "webpack --mode production",
+    "compile": "webpack --mode development",
+    "watch": "webpack --mode development --watch",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src",
     "test": "vscode-test",
     "build": "tsc",
-    "start": "node ./out/viz.js"
+    "start": "node ./dist/viz.js"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.26.0",
@@ -47,7 +47,8 @@
     "typescript": "^5.6.2",
     "webpack": "^5.97.1",
     "webpack-cli": "^5.1.4",
-    "webpack-node-externals": "^3.0.0"
+    "webpack-node-externals": "^3.0.0",
+    "ts-loader": "^9.5.1"
   },
   "dependencies": {
     "ladder-diagram": "^2.0.3"
