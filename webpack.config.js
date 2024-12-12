@@ -7,7 +7,9 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'viz.js',
-    libraryTarget: 'commonjs2'
+    library: 'LadderDiagram',
+    libraryTarget: 'umd',
+    globalObject: 'this'
   },
 
   externals: {
@@ -20,6 +22,14 @@ module.exports = {
       'ladder-diagram': path.resolve(__dirname, 'node_modules/ladder-diagram/js/ladder.js'),
     },
   },
+  plugins: [
+    new webpack.ProvidePlugin({
+      LadderDiagram: ['ladder-diagram', 'LadderDiagram'],
+      BoolVar: ['ladder-diagram', 'BoolVar'],
+      AllQuantifier: ['ladder-diagram', 'AllQuantifier'],
+      AnyQuantifier: ['ladder-diagram', 'AnyQuantifier'],
+    }),
+  ],
 
   module: {
     rules: [
@@ -30,7 +40,8 @@ module.exports = {
       },
       {
         test: /\.js$/,
-        exclude: /node_modules/,
+        //exclude: /node_modules/,
+        exclude: /node_modules\/(?!(ladder-diagram)\/).*/,
         use: [
           {
             loader: 'babel-loader',

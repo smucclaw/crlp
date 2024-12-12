@@ -84,7 +84,7 @@ export function activate(context: vscode.ExtensionContext) {
         shouldView: 'View',
       };
   
-      panel.webview.html = getWebviewContent(panel, context.extensionUri, fakeJson);
+      panel.webview.html = getWebviewContent(panel, fakeJson, context);
   
       panel.onDidDispose(() => {
         panel = undefined;
@@ -94,7 +94,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(
     vscode.commands.registerCommand('viz.showViz', () => {
-      console.log('viz.showViz command triggered');
+      console.log('viz command triggered');
       showViz();
     })
   );
@@ -102,16 +102,12 @@ export function activate(context: vscode.ExtensionContext) {
 
 function getWebviewContent(
   panel: vscode.WebviewPanel,
-  extensionUri: vscode.Uri,
-  fakeJson: any
-): string {
-  const ladderJsUri = panel.webview.asWebviewUri(
-    vscode.Uri.joinPath(extensionUri, 'assets', 'ladder.js')
+  fakeJson: any,
+  context: vscode.ExtensionContext
+){
+  const vizJsUri = panel.webview.asWebviewUri(
+    vscode.Uri.joinPath(context.extensionUri, 'dist', 'viz.bundle.js')
   );
-  const ladderCssUri = panel.webview.asWebviewUri(
-    vscode.Uri.joinPath(extensionUri, 'assets', 'ladder.css')
-  );
-
 
   return `
     <!DOCTYPE html>
@@ -120,7 +116,6 @@ function getWebviewContent(
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>Rule Ladder Diagram</title>
-      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ladder-diagram/css/ladder.css">
       <style>
         body { 
           margin: 0; 
@@ -136,8 +131,8 @@ function getWebviewContent(
     <body>
       <h2>Visualisation</h2>
       <div id="ladder-container"></div>
-      <div>${JSON.stringify(fakeJson, null, 2)}</div>      
-      <script src="https://cdn.jsdelivr.net/npm/ladder-diagram@2.0.3/js/ladder.min.js"></script>
+      <div>${JSON.stringify(fakeJson, null, 2)}</div>  
+      <script src="${vizJsUri}"></script>    
       <script>
         function q2circuit(q) {
           if (q.andOr.tag === 'Leaf') {
