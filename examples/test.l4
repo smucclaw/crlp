@@ -1,1 +1,5 @@
-GIVEN dog IS A Dog
+EVERY Person
+WHO walks
+AND eats
+OR drinks
+MUST sing
