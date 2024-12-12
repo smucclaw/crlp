@@ -1,117 +1,114 @@
+import path from 'path';
 import * as vscode from 'vscode';
 
-export function activate(context: vscode.ExtensionContext) {
-  console.log('extension loaded');
 
+export function showViz(context: vscode.ExtensionContext) {
   let panel: vscode.WebviewPanel | undefined;
 
-  function showViz() {
-    if (!panel) {
-      panel = vscode.window.createWebviewPanel(
-        'viz',
-        'Visualisation',
-        vscode.ViewColumn.Beside,
-        { 
-          enableScripts: true,
-          retainContextWhenHidden: true
-        }
-      );
-  
-      const fakeJson = {
-        andOr: {
-          tag: 'All',
-          children: [
-            {
-              andOr: {
-                tag: 'Leaf',
-                contents: 'does the person walk?',
-              },
-              mark: {
-                value: 'undefined',
-                source: 'user',
-              },
-              prePost: {},
-              shouldView: 'Ask',
-            },
-            {
-              andOr: {
-                tag: 'Any',
-                children: [
-                  {
-                    andOr: {
-                      tag: 'Leaf',
-                      contents: 'does the person eat?',
-                    },
-                    mark: {
-                      value: 'undefined',
-                      source: 'user',
-                    },
-                    prePost: {},
-                    shouldView: 'Ask',
-                  },
-                  {
-                    andOr: {
-                      tag: 'Leaf',
-                      contents: 'does the person drink?',
-                    },
-                    mark: {
-                      value: 'undefined',
-                      source: 'user',
-                    },
-                    prePost: {},
-                    shouldView: 'Ask',
-                  },
-                ],
-              },
-              mark: {
-                value: 'undefined',
-                source: 'user',
-              },
-              prePost: {
-                Pre: 'any of:',
-              },
-              shouldView: 'View',
-            },
-          ],
-        },
-        mark: {
-          value: 'undefined',
-          source: 'user',
-        },
-        prePost: {
-          Pre: 'all of:',
-        },
-        shouldView: 'View',
-      };
-  
-      panel.webview.html = getWebviewContent(panel, context.extensionUri, fakeJson);
-  
-      panel.onDidDispose(() => {
-        panel = undefined;
-      });
-    }
-  }
+  if (!panel) {
+    panel = vscode.window.createWebviewPanel(
+      'viz',
+      'Visualisation',
+      vscode.ViewColumn.Beside,
+      { 
+        enableScripts: true,
+        retainContextWhenHidden: true
+      }
+    );
 
-  context.subscriptions.push(
-    vscode.commands.registerCommand('viz.showViz', () => {
-      console.log('viz.showViz command triggered');
-      showViz();
-    })
-  );
+    const ladderDiagramScriptPath = vscode.Uri.file(path.join(context.extensionPath, 'media', 'ladder-diagram.min.js'));
+    const ladderDiagramScriptUri = panel.webview.asWebviewUri(ladderDiagramScriptPath);
+
+    const fakeJson = {
+      andOr: {
+        tag: 'All',
+        children: [
+          {
+            andOr: {
+              tag: 'Leaf',
+              contents: 'does the person walk?',
+            },
+            mark: {
+              value: 'undefined',
+              source: 'user',
+            },
+            prePost: {},
+            shouldView: 'Ask',
+          },
+          {
+            andOr: {
+              tag: 'Any',
+              children: [
+                {
+                  andOr: {
+                    tag: 'Leaf',
+                    contents: 'does the person eat?',
+                  },
+                  mark: {
+                    value: 'undefined',
+                    source: 'user',
+                  },
+                  prePost: {},
+                  shouldView: 'Ask',
+                },
+                {
+                  andOr: {
+                    tag: 'Leaf',
+                    contents: 'does the person drink?',
+                  },
+                  mark: {
+                    value: 'undefined',
+                    source: 'user',
+                  },
+                  prePost: {},
+                  shouldView: 'Ask',
+                },
+              ],
+            },
+            mark: {
+              value: 'undefined',
+              source: 'user',
+            },
+            prePost: {
+              Pre: 'any of:',
+            },
+            shouldView: 'View',
+          },
+        ],
+      },
+      mark: {
+        value: 'undefined',
+        source: 'user',
+      },
+      prePost: {
+        Pre: 'all of:',
+      },
+      shouldView: 'View',
+    };
+
+    panel.webview.html = getWebviewContent(context, panel, ladderDiagramScriptUri, fakeJson);
+
+    panel.onDidDispose(() => {
+      panel = undefined;
+    });
+  }
 }
 
 function getWebviewContent(
+  context: vscode.ExtensionContext,
   panel: vscode.WebviewPanel,
-  extensionUri: vscode.Uri,
-  fakeJson: any
-): string {
-  const ladderJsUri = panel.webview.asWebviewUri(
-    vscode.Uri.joinPath(extensionUri, 'assets', 'ladder.js')
-  );
-  const ladderCssUri = panel.webview.asWebviewUri(
-    vscode.Uri.joinPath(extensionUri, 'assets', 'ladder.css')
-  );
+  scriptUri: vscode.Uri,
+  fakeJson: object): string {
 
+  const webviewCssUri = panel.webview.asWebviewUri(
+    vscode.Uri.joinPath(
+      context.extensionUri, 
+      'node_modules', 
+      'ladder-diagram', 
+      'css', 
+      'ladder.css'
+    )
+  );
 
   return `
     <!DOCTYPE html>
@@ -120,7 +117,7 @@ function getWebviewContent(
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>Rule Ladder Diagram</title>
-      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ladder-diagram/css/ladder.css">
+      <link rel="stylesheet" href="${webviewCssUri}">
       <style>
         body { 
           margin: 0; 
@@ -132,13 +129,18 @@ function getWebviewContent(
           height: 100vh;
         }
       </style>
+      <script src="${scriptUri}"></script>
     </head>
     <body>
-      <h2>Visualisation</h2>
-      <div id="ladder-container"></div>
-      <div>${JSON.stringify(fakeJson, null, 2)}</div>      
-      <script src="https://cdn.jsdelivr.net/npm/ladder-diagram@2.0.3/js/ladder.min.js"></script>
+      <div id="ladder-container" style="width: 100%; height: 100%;"></div>
       <script>
+        // const LadderDiagram = LadderDiagram.LadderDiagram;
+        console.log("ladder:", LadderDiagram.LadderDiagram);
+        const BoolVar = LadderDiagram.BoolVar;
+        const AllQuantifier = LadderDiagram.AllQuantifier;
+        const AnyQuantifier = LadderDiagram.AnyQuantifier;
+
+        // JavaScript functions for the ladder diagram
         function q2circuit(q) {
           if (q.andOr.tag === 'Leaf') {
             const utf = 
@@ -146,7 +148,7 @@ function getWebviewContent(
               q.mark.value === 'true' ? 'T' :
               q.mark.value === 'false' ? 'F' : null;
             
-            return new LadderDiagram.BoolVar(
+            return new BoolVar(
               q.andOr.contents, 
               false, 
               q.mark.source === 'default' ? utf : null,
@@ -155,8 +157,8 @@ function getWebviewContent(
           }
           
           const Construct = q.andOr.tag === 'All' ? 
-            LadderDiagram.AllQuantifier : 
-            LadderDiagram.AnyQuantifier;
+            AllQuantifier : 
+            AnyQuantifier;
           
           return new Construct(
             q.andOr.children.map(c => q2circuit(c))
@@ -166,22 +168,13 @@ function getWebviewContent(
         function renderDiagram() {
           const fakeJson = ${JSON.stringify(fakeJson)};
           const circuit = q2circuit(fakeJson);
-          const ld = new LadderDiagram(circuit);
-          console.log(fakeJson, circuit)
+          const ld = new LadderDiagram.LadderDiagram(circuit);
           ld.attach(document.getElementById('ladder-container'));
         }
 
-        if (window.LadderDiagram) {
-          console.log("ladder diagram exists", window.LadderDiagram);
-          renderDiagram();
-        } else {
-          console.log("ladder diagram exists not", window.LadderDiagram);
-          document.addEventListener('DOMContentLoaded', renderDiagram);
-        }
+        renderDiagram();
       </script>
     </body>
-    </html>
+  </html>
   `;
 }
-
-export function deactivate() {}

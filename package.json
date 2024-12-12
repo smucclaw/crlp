@@ -10,7 +10,7 @@
   "categories": [
     "Other"
   ],
-  "main": "./out/viz.js",
+  "main": "./out/src/extension.js",
   "contributes": {
     "commands": [
       {
@@ -31,7 +31,7 @@
     "lint": "eslint src",
     "test": "vscode-test",
     "build": "tsc",
-    "start": "node ./out/viz.js"
+    "start": "node ./out/extension.js"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.26.0",
@@ -44,10 +44,7 @@
     "@vscode/test-electron": "^2.4.1",
     "babel-loader": "^9.2.1",
     "eslint": "^9.11.1",
-    "typescript": "^5.6.2",
-    "webpack": "^5.97.1",
-    "webpack-cli": "^5.1.4",
-    "webpack-node-externals": "^3.0.0"
+    "typescript": "^5.6.2"
   },
   "dependencies": {
     "ladder-diagram": "^2.0.3"
