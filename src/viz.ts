@@ -1,112 +1,117 @@
 import * as vscode from 'vscode';
-import 'ladder-diagram';
-
-console.log('extension loaded');
-
-let panel: vscode.WebviewPanel | undefined;
-
-function showViz() {
-  if (!panel) {
-    panel = vscode.window.createWebviewPanel(
-      'viz',
-      'Visualisation',
-      vscode.ViewColumn.Beside,
-      { 
-        enableScripts: true,
-        retainContextWhenHidden: true
-      }
-    );
-
-    const fakeJson = {
-      andOr: {
-        tag: 'All',
-        children: [
-          {
-            andOr: {
-              tag: 'Leaf',
-              contents: 'does the person walk?',
-            },
-            mark: {
-              value: 'undefined',
-              source: 'user',
-            },
-            prePost: {},
-            shouldView: 'Ask',
-          },
-          {
-            andOr: {
-              tag: 'Any',
-              children: [
-                {
-                  andOr: {
-                    tag: 'Leaf',
-                    contents: 'does the person eat?',
-                  },
-                  mark: {
-                    value: 'undefined',
-                    source: 'user',
-                  },
-                  prePost: {},
-                  shouldView: 'Ask',
-                },
-                {
-                  andOr: {
-                    tag: 'Leaf',
-                    contents: 'does the person drink?',
-                  },
-                  mark: {
-                    value: 'undefined',
-                    source: 'user',
-                  },
-                  prePost: {},
-                  shouldView: 'Ask',
-                },
-              ],
-            },
-            mark: {
-              value: 'undefined',
-              source: 'user',
-            },
-            prePost: {
-              Pre: 'any of:',
-            },
-            shouldView: 'View',
-          },
-        ],
-      },
-      mark: {
-        value: 'undefined',
-        source: 'user',
-      },
-      prePost: {
-        Pre: 'all of:',
-      },
-      shouldView: 'View',
-    };
-
-    panel.webview.html = getWebviewContent(panel, vscode.Uri.file(__dirname), fakeJson);
-
-    panel.onDidDispose(() => {
-      panel = undefined;
-    });
-  }
-};
 
 export function activate(context: vscode.ExtensionContext) {
   console.log('extension loaded');
 
+  let panel: vscode.WebviewPanel | undefined;
+
+  function showViz() {
+    if (!panel) {
+      panel = vscode.window.createWebviewPanel(
+        'viz',
+        'Visualisation',
+        vscode.ViewColumn.Beside,
+        { 
+          enableScripts: true,
+          retainContextWhenHidden: true
+        }
+      );
+  
+      const fakeJson = {
+        andOr: {
+          tag: 'All',
+          children: [
+            {
+              andOr: {
+                tag: 'Leaf',
+                contents: 'does the person walk?',
+              },
+              mark: {
+                value: 'undefined',
+                source: 'user',
+              },
+              prePost: {},
+              shouldView: 'Ask',
+            },
+            {
+              andOr: {
+                tag: 'Any',
+                children: [
+                  {
+                    andOr: {
+                      tag: 'Leaf',
+                      contents: 'does the person eat?',
+                    },
+                    mark: {
+                      value: 'undefined',
+                      source: 'user',
+                    },
+                    prePost: {},
+                    shouldView: 'Ask',
+                  },
+                  {
+                    andOr: {
+                      tag: 'Leaf',
+                      contents: 'does the person drink?',
+                    },
+                    mark: {
+                      value: 'undefined',
+                      source: 'user',
+                    },
+                    prePost: {},
+                    shouldView: 'Ask',
+                  },
+                ],
+              },
+              mark: {
+                value: 'undefined',
+                source: 'user',
+              },
+              prePost: {
+                Pre: 'any of:',
+              },
+              shouldView: 'View',
+            },
+          ],
+        },
+        mark: {
+          value: 'undefined',
+          source: 'user',
+        },
+        prePost: {
+          Pre: 'all of:',
+        },
+        shouldView: 'View',
+      };
+  
+      panel.webview.html = getWebviewContent(panel, context.extensionUri, fakeJson);
+  
+      panel.onDidDispose(() => {
+        panel = undefined;
+      });
+    }
+  }
+
   context.subscriptions.push(
     vscode.commands.registerCommand('viz.showViz', () => {
-      console.log('viz.showViz command');
+      console.log('viz.showViz command triggered');
       showViz();
     })
   );
 }
-  
-function getWebviewContent(panel: vscode.WebviewPanel, extensionUri: vscode.Uri, fakeJson: { andOr: { tag: string; children: ({ andOr: { tag: string; contents: string; children?: undefined; }; mark: { value: string; source: string; }; prePost: { Pre?: undefined; }; shouldView: string; } | { andOr: { tag: string; children: { andOr: { tag: string; contents: string; }; mark: { value: string; source: string; }; prePost: {}; shouldView: string; }[]; contents?: undefined; }; mark: { value: string; source: string; }; prePost: { Pre: string; }; shouldView: string; })[]; }; mark: { value: string; source: string; }; prePost: { Pre: string; }; shouldView: string; }) {
-  const vizJsUri = panel.webview.asWebviewUri(
-    vscode.Uri.joinPath(extensionUri, 'dist', 'viz.bundle.js')
+
+function getWebviewContent(
+  panel: vscode.WebviewPanel,
+  extensionUri: vscode.Uri,
+  fakeJson: any
+): string {
+  const ladderJsUri = panel.webview.asWebviewUri(
+    vscode.Uri.joinPath(extensionUri, 'assets', 'ladder.js')
   );
+  const ladderCssUri = panel.webview.asWebviewUri(
+    vscode.Uri.joinPath(extensionUri, 'assets', 'ladder.css')
+  );
+
 
   return `
     <!DOCTYPE html>
@@ -131,7 +136,8 @@ function getWebviewContent(panel: vscode.WebviewPanel, extensionUri: vscode.Uri,
     <body>
       <h2>Visualisation</h2>
       <div id="ladder-container"></div>
-      <script src="${vizJsUri}"></script>
+      <div>${JSON.stringify(fakeJson, null, 2)}</div>      
+      <script src="https://cdn.jsdelivr.net/npm/ladder-diagram@2.0.3/js/ladder.min.js"></script>
       <script>
         function q2circuit(q) {
           if (q.andOr.tag === 'Leaf') {
@@ -139,7 +145,7 @@ function getWebviewContent(panel: vscode.WebviewPanel, extensionUri: vscode.Uri,
               q.mark.value === 'undefined' ? 'U' :
               q.mark.value === 'true' ? 'T' :
               q.mark.value === 'false' ? 'F' : null;
-
+            
             return new LadderDiagram.BoolVar(
               q.andOr.contents, 
               false, 
@@ -147,11 +153,11 @@ function getWebviewContent(panel: vscode.WebviewPanel, extensionUri: vscode.Uri,
               q.mark.source === 'user' ? utf : null
             );
           }
-
+          
           const Construct = q.andOr.tag === 'All' ? 
             LadderDiagram.AllQuantifier : 
             LadderDiagram.AnyQuantifier;
-
+          
           return new Construct(
             q.andOr.children.map(c => q2circuit(c))
           );
@@ -161,14 +167,15 @@ function getWebviewContent(panel: vscode.WebviewPanel, extensionUri: vscode.Uri,
           const fakeJson = ${JSON.stringify(fakeJson)};
           const circuit = q2circuit(fakeJson);
           const ld = new LadderDiagram(circuit);
+          console.log(fakeJson, circuit)
           ld.attach(document.getElementById('ladder-container'));
         }
 
         if (window.LadderDiagram) {
-          console.log("ladder diagram exists");
+          console.log("ladder diagram exists", window.LadderDiagram);
           renderDiagram();
         } else {
-          console.log("ladder diagram exists not");
+          console.log("ladder diagram exists not", window.LadderDiagram);
           document.addEventListener('DOMContentLoaded', renderDiagram);
         }
       </script>

@@ -1,14 +1,16 @@
 {
 	"compilerOptions": {
-    "target": "es2020",
-		"module": "commonjs",
+    "target": "esnext",                                /* Specify ECMAScript target version: 'ES3' (default), 'ES5', 'ES2015', 'ES2016', 'ES2017', 'ES2018', 'ES2019', 'ES2020', 'ES2021', or 'ESNEXT'. */
+    "module": "UMD",                           /* Specify module code generation: 'none', 'commonjs', 'amd', 'system', 'umd', 'es2015', 'es2020', or 'ESNext'. */
     "moduleResolution": "node",
+		"allowJs": true,                             /* Allow javascript files to be compiled. */
+    "checkJs": false,                             /* Report errors in .js files. */
     "outDir": "./out",
-		"rootDir": "./src",
     "sourceMap": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
 		"skipLibCheck": true,
+		"downlevelIteration": true,                  /* Provide full support for iterables in 'for-of', spread, and destructuring when targeting 'ES5' or 'ES3'. */
 		"strict": true,   /* enable all strict type-checking options */
 		"typeRoots": [
 			"./node_modules/@types",
