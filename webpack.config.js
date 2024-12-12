@@ -5,8 +5,13 @@ module.exports = {
   entry: './src/viz.ts',
 
   output: {
-    filename: 'viz.bundle.js',
     path: path.resolve(__dirname, 'dist'),
+    filename: 'viz.js',
+    libraryTarget: 'commonjs2'
+  },
+
+  externals: {
+    vscode: 'commonjs vscode'
   },
 
   resolve: {
@@ -14,10 +19,6 @@ module.exports = {
     alias: {
       'ladder-diagram': path.resolve(__dirname, 'node_modules/ladder-diagram/js/ladder.js'),
     },
-  },
-
-  externals: {
-    vscode: 'commonjs vscode',
   },
 
   module: {
@@ -42,4 +43,5 @@ module.exports = {
     ],
   },
   mode: 'development',
+  devtool: 'source-map'
 };
