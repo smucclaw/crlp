@@ -19,11 +19,13 @@ export interface RuleNode {
 }
 
 export class RuleToJson {
-  private static parseCondition(subject: string, conditionText: string): RuleNode {
+  private static parseLeaf(subject: string, leafText: string): RuleNode {
+    // hack to turn the verb interrogative
+    const baseVerb = leafText.replace(/s$/, '');
     return {
       andOr: {
         tag: 'Leaf',
-        contents: `does the ${subject.toLowerCase()} ${conditionText}?`
+        contents: `does the ${subject.toLowerCase()} ${baseVerb}?`
       },
       mark: {
         value: 'undefined',
@@ -33,69 +35,78 @@ export class RuleToJson {
       shouldView: 'Ask'
     };
   }
-
-  static parse(rule: string): RuleNode {
-    const cleanedRule = rule.replace(/\s+/g, ' ').trim();
-    const match = cleanedRule.match(/EVERY\s+(\w+)\s+WHO\s+(.+)\s+MUST\s+(.+)/);
-    
-    if (!match) {
-      throw new Error('invalid rule');
+  private static groupConditions(subject: string, conditions: string[], operators: ('AND' | 'OR')[]): RuleNode {
+    if (conditions.length === 1) {
+      return this.parseLeaf(subject, conditions[0]);
     }
-
-    const subject = match[1];
-    const conditions = match[2].split(/\s+(AND|OR)\s+/);
-    const mustAction = match[3];
-
-    const children: RuleNode[] = [];
-    let currentLogicalOperator: 'AND' | 'OR' = 'AND';
-
-    for (let i = 0; i < conditions.length; i++) {
-      const condition = conditions[i];
-      
-      if (condition === 'AND' || condition === 'OR') {
-        currentLogicalOperator = condition;
-        continue;
-      }
-
-      children.push(this.parseCondition(subject, condition));
+  
+    const operator = operators.shift(); 
+    if (!operator) {
+      throw new Error('invalid rule format');
     }
-
-    if (children.length === 3) {
-      const anyChildren: RuleNode[] = [
-        this.parseCondition(subject, 'eat'),
-        this.parseCondition(subject, 'drink')
-      ];
-      children[1] = {
-        andOr: {
-          tag: 'Any',
-          children: anyChildren
-        },
-        mark: {
-          value: 'undefined',
-          source: 'user'
-        },
-        prePost: {
-          Pre: 'any of:'
-        },
-        shouldView: 'View'
-      };
-    }
-
-    const topLevelAndOr: RuleNode = {
+  
+    const splitIndex = Math.floor(conditions.length / 2);
+  
+    const leftConditions = conditions.slice(0, splitIndex);
+    const rightConditions = conditions.slice(splitIndex);
+  
+    const leftNode = this.groupConditions(subject, leftConditions, operators);
+    const rightNode = this.groupConditions(subject, rightConditions, operators);
+  
+    return {
       andOr: {
-        tag: children.length > 1 ? (currentLogicalOperator === 'AND' ? 'All' : 'Any') : 'All',
-        children: children.length > 1 ? children : undefined
+        tag: operator === 'AND' ? 'All' : 'Any',
+        children: [leftNode, rightNode]
       },
       mark: {
         value: 'undefined',
         source: 'user'
       },
       prePost: {
-        Pre: children.length > 1 ? (currentLogicalOperator === 'AND' ? 'all of:' : 'any of:') : ''
+        Pre: operator === 'AND' ? 'all of:' : 'any of:'
       },
-      shouldView: children.length > 1 ? 'View' : 'Ask'
+      shouldView: 'View'
     };
+  }  
 
-    return topLevelAndOr;
+  static parse(rule: string): RuleNode {
+    const cleanedRule = rule.replace(/\s+/g, ' ').trim();
+    const match = cleanedRule.match(/EVERY\s+(\w+)\s+WHO\s+(.+)\s+MUST\s+(.+)/);
+
+    if (!match) {
+      throw new Error('Invalid rule format');
+    }
+
+    const subject = match[1];
+    const conditions = match[2];
+
+    const conditionParts = conditions.split(/\s+(AND|OR)\s+/);
+    const parts: string[] = [];
+    const operators: ('AND' | 'OR')[] = [];
+
+    for (let i = 0; i < conditionParts.length; i++) {
+      if (conditionParts[i] === 'AND' || conditionParts[i] === 'OR') {
+        operators.push(conditionParts[i] as 'AND' | 'OR');
+      } else {
+        parts.push(conditionParts[i]);
+      }
+    }
+
+    const groupedConditions = this.groupConditions(subject, parts, operators);
+
+    return {
+      andOr: {
+        tag: 'All',
+        children: groupedConditions.andOr.children
+      },
+      mark: {
+        value: 'undefined',
+        source: 'user'
+      },
+      prePost: {
+        Pre: 'all of:'
+      },
+      shouldView: 'View'
+    };
   }
 }
