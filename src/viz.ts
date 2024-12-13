@@ -1,8 +1,8 @@
 import path from 'path';
 import * as vscode from 'vscode';
+import { RuleNode } from './ruleToJson';
 
-
-export function showViz(context: vscode.ExtensionContext) {
+export function showViz(context: vscode.ExtensionContext, ruleJson?: RuleNode) {
   let panel: vscode.WebviewPanel | undefined;
 
   if (!panel) {
@@ -19,74 +19,7 @@ export function showViz(context: vscode.ExtensionContext) {
     const ladderDiagramScriptPath = vscode.Uri.file(path.join(context.extensionPath, 'media', 'ladder-diagram.min.js'));
     const ladderDiagramScriptUri = panel.webview.asWebviewUri(ladderDiagramScriptPath);
 
-    const fakeJson = {
-      andOr: {
-        tag: 'All',
-        children: [
-          {
-            andOr: {
-              tag: 'Leaf',
-              contents: 'does the person walk?',
-            },
-            mark: {
-              value: 'undefined',
-              source: 'user',
-            },
-            prePost: {},
-            shouldView: 'Ask',
-          },
-          {
-            andOr: {
-              tag: 'Any',
-              children: [
-                {
-                  andOr: {
-                    tag: 'Leaf',
-                    contents: 'does the person eat?',
-                  },
-                  mark: {
-                    value: 'undefined',
-                    source: 'user',
-                  },
-                  prePost: {},
-                  shouldView: 'Ask',
-                },
-                {
-                  andOr: {
-                    tag: 'Leaf',
-                    contents: 'does the person drink?',
-                  },
-                  mark: {
-                    value: 'undefined',
-                    source: 'user',
-                  },
-                  prePost: {},
-                  shouldView: 'Ask',
-                },
-              ],
-            },
-            mark: {
-              value: 'undefined',
-              source: 'user',
-            },
-            prePost: {
-              Pre: 'any of:',
-            },
-            shouldView: 'View',
-          },
-        ],
-      },
-      mark: {
-        value: 'undefined',
-        source: 'user',
-      },
-      prePost: {
-        Pre: 'all of:',
-      },
-      shouldView: 'View',
-    };
-
-    panel.webview.html = getWebviewContent(context, panel, ladderDiagramScriptUri, fakeJson);
+    panel.webview.html = getWebviewContent(context, panel, ladderDiagramScriptUri, ruleJson || DefaultRule() );
 
     panel.onDidDispose(() => {
       panel = undefined;
@@ -98,7 +31,7 @@ function getWebviewContent(
   context: vscode.ExtensionContext,
   panel: vscode.WebviewPanel,
   scriptUri: vscode.Uri,
-  fakeJson: object): string {
+  ruleJson: RuleNode): string {
 
   const webviewCssUri = panel.webview.asWebviewUri(
     vscode.Uri.joinPath(
@@ -133,6 +66,8 @@ function getWebviewContent(
     </head>
     <body>
       <div id="ladder-container" style="width: 100%; height: 100%;"></div>
+      <hr />
+      <div id="json">${JSON.stringify(ruleJson, null, 2)}</pre></div>
       <script>
         // const LadderDiagram = LadderDiagram.LadderDiagram;
         console.log("ladder:", LadderDiagram.LadderDiagram);
@@ -166,8 +101,8 @@ function getWebviewContent(
         }
 
         function renderDiagram() {
-          const fakeJson = ${JSON.stringify(fakeJson)};
-          const circuit = q2circuit(fakeJson);
+          const ruleJson = ${JSON.stringify(ruleJson)};
+          const circuit = q2circuit(ruleJson);
           const ld = new LadderDiagram.LadderDiagram(circuit);
           ld.attach(document.getElementById('ladder-container'));
         }
@@ -177,4 +112,13 @@ function getWebviewContent(
     </body>
   </html>
   `;
+}
+
+function DefaultRule(): RuleNode {
+  return {
+    andOr: { tag: 'All', children: [] },
+    mark: { value: 'undefined', source: 'user' },
+    prePost: {},
+    shouldView: 'Ask'
+  };
 }
