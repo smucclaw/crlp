@@ -1,63 +1,85 @@
 # crlp README
 
-This is the README for the demo of extension for "l4" for legislative drafting.
+This is a prototype of a VSCode webview extension designed to visualize L4 programs as ladder diagrams.
 
-## First, how do I run it
+## Running the Extension
 
-`npm run build`
-and then
-`vcse package`
+1. Build the project
 
-It'll tell you there's no license, should it continue? No there is no license right now this is a demo of ongoing work, go ahead and click 'y'.
+    ```bash
+    npm run build
+    ```
 
-A file will come out. This file is called: *crlp-0.0.1.vsix*. You can then *Install from VSIX* in your VSCode. It'll install, let us know if it fails. Once it's finished installing, it will look like nothing is happening but that's because you must write a rule.
+2. Package the extension
 
-## Further explanations:
+    ```bash
+    vsce package
+    ```
 
-## Ladder Diagram
+    During this process, you may be prompted to create the package without a license. Confirm by responding `y` to proceed.
 
-At the moment it displays a ladder diagram or a set of rules written in L4.
-The ladder diagram is an npm library, from previous work by Jules and Zeming and (can be found here)[https://github.com/smucclaw/ladder-diagram]. For the purposes of this extension it has been bundled by esbuild. If there are any further updates to the library this can be done like this:
+3. Install the extension
+    The extension will be packaged as `crlp-0.0.1.vsix`. Open VSCode, select the *Install from VSIX* option, and install the file.
+    > Note: After installation, the extension might initially appear inactive. To activate it, load or write an L4 rule (see details below).
 
-`npx esbuild node_modules/ladder-diagram/js/ladder.js --bundle --format=iife --global-name=LadderDiagram --outfile=media/ladder-diagram.min.js`
+## Features and Functionalities
 
-...and you will see this bundled ladder-diagram.min.js in media. Attempting to import it directly into the extension causes some issues.
+### Ladder Diagram
 
-## L4 code it accepts (ie. The Rule)
+The extension uses a VSCode webview to render L4 rules as ladder diagrams, displaying them in a panel next to the editor. This setup enables the extension to update the visualisation dynamically, reflecting any changes made to the rules in real time.
 
-In this demo not every single L4 rule can be parsed. The recommended format is this:
+The ladder diagrams are powered by an npm library developed by Jules and Zeming, available [here](https://github.com/JuliaPoo/ladder-diagram). For integration within the extension, this library has been bundled using esbuild. To update the bundled file in the future, run:
 
-`EVERY Person
+```bash
+npx esbuild node_modules/ladder-diagram/js/ladder.js --bundle --format=iife --global-name=LadderDiagram --outfile=media/ladder-diagram.min.js
+```
+
+The bundled file `ladder-diagram.min.js` will be located in the `media` folder. Direct imports of the ladder diagram library are not currently supported, so it is bundled with esbuild.
+
+### L4 Rule Parsing
+
+The extension accepts a subset of L4 rules for this demo. The recommended format is:
+
+```l4
+EVERY Person
 WHO walks
 AND eats
 OR drinks
-MUST sing`
+MUST sing
+```
 
-This demo file is found in the repo under examples/test.l4.
+You can find an example file, `examples/test.l4`, in the repository. The current demo supports only variations of this specific rule format:
 
-In the future the rules will be sensibly parsed by a backend.
+```l4
+EVERY <noun>
+WHO <verb1>
+AND <verb2>
+MUST <verb3>
+```
 
-However for now, it takes variations of this very specific rule. You can change the subject, and the verbs. Do not be alarmed if your L4 rule produces an error (Invalid rule format)! Trust that your format is theoretically valid L4. Return to this rule, the only rule for now. The rule must go: Every noun WHO verb1 AND verb2 MUST verb3. I apologise. At the moment it uses a hacky typescript parse that parses only this type of rule (rule2Json.ts). As mentioned this will be replaced with a more robust backend.
+> Note: Deviations from this format will result in an "Invalid rule format" error due to the temporary TypeScript-based parser (rule2Json.ts) used for this demo.
 
-## How To Get The Diagram To Appear On The Right
+### Displaying the Diagram
 
-So you have now pasted in this rule. There is no diagram. How does it appear?
+To visualize your rule as a ladder diagram:
 
-1) You can save the file.
+- Save the file containing your rule.
 
-2) Assuming you don't want to, there is a very small button that says Update Diagram in the status bar on the bottom right. It's to the left of the notification bell, maybe beside Prettier, or what have you. If you click it, the picture appears! If you modify it, it appears in a new panel.
+- Alternatively, use the "Update Diagram" button in the bottom-right status bar of VSCode (near the notification bell or Prettier controls). Clicking this button generates the diagram in a new panel.
 
----
+## Limitations and Known Issues
 
-## Thanks!
+The parser supports only a rigid subset of L4 rules, as detailed above.
 
-Let me know if you have issues or were expecting more. We will add in interactivity with the diagram at a later stage.
+Diagram updates require manual actions (saving the file or clicking the status bar button).
 
----
+Direct imports of the ladder diagram library into the extension are currently unsupported, necessitating bundling via esbuild.
 
-## Known Issues
+## Future Work
 
-Known Issues have been described above. This is a demo.
+Backend Integration: The demo will eventually include a backend to support a broader range of L4 rules.
+
+Diagram Interactivity: Future updates will allow users to interact directly with ladder diagrams within the extension.
 
 ## Release Notes
 
