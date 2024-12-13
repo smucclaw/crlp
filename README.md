@@ -5,24 +5,25 @@ This is the README for the demo of extension for "l4" for legislative drafting.
 ## First, how do I run it
 
 `npm run build`
+and then
 `vcse package`
 
-It'll ask you if there's a license, should we go on? No there is no license right now, go ahead and click 'y'.
+It'll tell you there's no license, should it continue? No there is no license right now this is a demo of ongoing work, go ahead and click 'y'.
 
-A file will come out. This file is called: *crlp-0.0.1.vsix*. You can then *Install from VSIX* from your VSCode, or online VSCode.dev. It'll install. Now it looks like nothing is happening but that's because you must write a rule.
+A file will come out. This file is called: *crlp-0.0.1.vsix*. You can then *Install from VSIX* in your VSCode. It'll install, let us know if it fails. Once it's finished installing, it will look like nothing is happening but that's because you must write a rule.
 
 ## Further explanations:
 
 ## Ladder Diagram
 
 At the moment it displays a ladder diagram or a set of rules written in L4.
-The ladder diagram is an npm library, from previous work by Jules and Zeming and (can be found here)[https://github.com/smucclaw/ladder-diagram]. For this extension it has been bundled by esbuild. If there are any further updates to the library this can be done like this:
+The ladder diagram is an npm library, from previous work by Jules and Zeming and (can be found here)[https://github.com/smucclaw/ladder-diagram]. For the purposes of this extension it has been bundled by esbuild. If there are any further updates to the library this can be done like this:
 
 `npx esbuild node_modules/ladder-diagram/js/ladder.js --bundle --format=iife --global-name=LadderDiagram --outfile=media/ladder-diagram.min.js`
 
-...and you will see this bundled ladder-diagram.min.js in media. Attempting to import it directly into the extension causes some issues as this is an es6 module.
+...and you will see this bundled ladder-diagram.min.js in media. Attempting to import it directly into the extension causes some issues.
 
-## L4 code it accepts
+## L4 code it accepts (ie. The Rule)
 
 In this demo not every single L4 rule can be parsed. The recommended format is this:
 
@@ -36,7 +37,7 @@ This demo file is found in the repo under examples/test.l4.
 
 In the future the rules will be sensibly parsed by a backend.
 
-However for now, it takes variations of this very specific rule. You can change the subject, and the verbs. Do not be alarmed if your L4 rule produces an error (Invalid rule format)! Trust that your format is theoretically valid L4. Return to this rule, the only rule for now. The rule must go: Every noun WHO verb1 AND verb2 MUST verb3. I apologise. At the moment it uses a hacky typescript parse that parses only this type of rule.
+However for now, it takes variations of this very specific rule. You can change the subject, and the verbs. Do not be alarmed if your L4 rule produces an error (Invalid rule format)! Trust that your format is theoretically valid L4. Return to this rule, the only rule for now. The rule must go: Every noun WHO verb1 AND verb2 MUST verb3. I apologise. At the moment it uses a hacky typescript parse that parses only this type of rule (rule2Json.ts). As mentioned this will be replaced with a more robust backend.
 
 ## How To Get The Diagram To Appear On The Right
 
@@ -49,6 +50,8 @@ So you have now pasted in this rule. There is no diagram. How does it appear?
 ---
 
 ## Thanks!
+
+Let me know if you have issues or were expecting more. We will add in interactivity with the diagram at a later stage.
 
 ---
 
