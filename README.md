@@ -1,80 +1,63 @@
 # crlp README
 
-This is the README for the extension for "l4" for legislative drafting.
+This is the README for the demo of extension for "l4" for legislative drafting.
 
-## Features
+## First, how do I run it
 
-It shows linearisation of the l4 in a parallel pane.
+`npm run build`
+`vcse package`
 
-Colourisation of boolean operators
+It'll ask you if there's a license, should we go on? No there is no license right now, go ahead and click 'y'.
 
+A file will come out. This file is called: *crlp-0.0.1.vsix*. You can then *Install from VSIX* from your VSCode, or online VSCode.dev. It'll install. Now it looks like nothing is happening but that's because you must write a rule.
 
+## Further explanations:
+
+## Ladder Diagram
+
+At the moment it displays a ladder diagram or a set of rules written in L4.
+The ladder diagram is an npm library, from previous work by Jules and Zeming and (can be found here)[https://github.com/smucclaw/ladder-diagram]. For this extension it has been bundled by esbuild. If there are any further updates to the library this can be done like this:
+
+`npx esbuild node_modules/ladder-diagram/js/ladder.js --bundle --format=iife --global-name=LadderDiagram --outfile=media/ladder-diagram.min.js`
+
+...and you will see this bundled ladder-diagram.min.js in media. Attempting to import it directly into the extension causes some issues as this is an es6 module.
+
+## L4 code it accepts
+
+In this demo not every single L4 rule can be parsed. The recommended format is this:
+
+`EVERY Person
+WHO walks
+AND eats
+OR drinks
+MUST sing`
+
+This demo file is found in the repo under examples/test.l4.
+
+In the future the rules will be sensibly parsed by a backend.
+
+However for now, it takes variations of this very specific rule. You can change the subject, and the verbs. Do not be alarmed if your L4 rule produces an error (Invalid rule format)! Trust that your format is theoretically valid L4. Return to this rule, the only rule for now. The rule must go: Every noun WHO verb1 AND verb2 MUST verb3. I apologise. At the moment it uses a hacky typescript parse that parses only this type of rule.
+
+## How To Get The Diagram To Appear On The Right
+
+So you have now pasted in this rule. There is no diagram. How does it appear?
+
+1) You can save the file.
+
+2) Assuming you don't want to, there is a very small button that says Update Diagram in the status bar on the bottom right. It's to the left of the notification bell, maybe beside Prettier, or what have you. If you click it, the picture appears! If you modify it, it appears in a new panel.
 
 ---
 
+## Thanks!
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
-
-For example if there is an image subfolder under your extension project workspace:
-
-\!\[feature X\]\(images/feature-x.png\)
-
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
-
-## Requirements
-
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
-
-## Extension Settings
-
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-
-For example:
-
-This extension contributes the following settings:
-
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+---
 
 ## Known Issues
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+Known Issues have been described above. This is a demo.
 
 ## Release Notes
 
-Users appreciate release notes as you update your extension.
-
 ### 1.0.0
 
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
----
-
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+Initial release of a demo.
