@@ -3,18 +3,14 @@
   "displayName": "crlp",
   "description": "ide for legislation drafting",
   "version": "0.0.1",
+  "type": "commonjs",
   "engines": {
     "vscode": "^1.94.0"
   },
   "categories": [
     "Other"
   ],
-  "activationEvents": [
-    "onLanguage:l4",
-    "onCommand:nlg-preview.showPreview",
-    "onCommand:crlp.helloWorld"
-  ],
-  "main": "./out/extension.js",
+  "main": "./out/src/extension.js",
   "contributes": {
     "configuration": {
       "properties": {
@@ -38,22 +34,12 @@
     }],
     "commands": [
       {
-        "command": "crlp.helloWorld",
-        "title": "Hello World"
+        "command": "viz.showViz",
+        "title": "Show Visualisation"
       },
       {
         "command": "nlg-preview.showPreview",
         "title": "Display Natural Language Preview"
-      }
-    ],
-    "colors": [
-      {
-        "id": "l4.booleanOperators",
-        "description": "colour for bool operators in L4",
-        "defaults": {
-          "dark": "#5eb7ff",
-          "light": "#0000FF"
-        }
       }
     ]
   },
@@ -63,17 +49,24 @@
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src",
-    "test": "vscode-test"
+    "test": "vscode-test",
+    "build": "tsc",
+    "start": "node ./out/extension.js"
   },
   "devDependencies": {
-    "@types/vscode": "^1.94.0",
+    "@babel/preset-env": "^7.26.0",
     "@types/mocha": "^10.0.8",
     "@types/node": "20.x",
+    "@types/vscode": "^1.94.0",
     "@typescript-eslint/eslint-plugin": "^8.7.0",
     "@typescript-eslint/parser": "^8.7.0",
-    "eslint": "^9.11.1",
-    "typescript": "^5.6.2",
     "@vscode/test-cli": "^0.0.10",
-    "@vscode/test-electron": "^2.4.1"
+    "@vscode/test-electron": "^2.4.1",
+    "babel-loader": "^9.2.1",
+    "eslint": "^9.11.1",
+    "typescript": "^5.6.2"
+  },
+  "dependencies": {
+    "ladder-diagram": "^2.0.3"
   }
 }

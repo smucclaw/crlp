@@ -1,6 +1,5 @@
-GIVEN dog IS A Dog
-      p IS A Place
-DECIDE dog IS prohibited at p
-  IF p IS school
-  AND dog’s weight > 30 kg
-  OR dog’s height > 100 cm
+EVERY Person
+WHO walks
+AND eats
+OR drinks
+MUST sing
