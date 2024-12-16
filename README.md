@@ -7,7 +7,7 @@ This is a prototype of a VSCode webview extension designed to visualize L4 progr
 1. Build the project
 
     ```bash
-    npm run build
+    npm run build 
     ```
 
 2. Package the extension
@@ -17,10 +17,12 @@ This is a prototype of a VSCode webview extension designed to visualize L4 progr
     ```
 
     During this process, you may be prompted to create the package without a license. Confirm by responding `y` to proceed.
+    ![alt text](screenshots/create-package.png)
 
 3. Install the extension
-    The extension will be packaged as `crlp-0.0.1.vsix`. Open VSCode, select the *Install from VSIX* option, and install the file.
-    > Note: After installation, the extension might initially appear inactive. To activate it, load or write an L4 rule (see details below).
+   The extension will be packaged as `crlp-0.0.1.vsix`. Open VSCode, select the *Install from VSIX* option, and install the file.
+   ![alt text](screenshots/install-from-vsix.png)
+   > Note: After installation, the extension might initially appear inactive. To activate it, load or write an L4 rule (see details below).
 
 ## Features and Functionalities
 
@@ -48,6 +50,8 @@ OR drinks
 MUST sing
 ```
 
+![alt text](screenshots/ladder.png)
+
 You can find an example file, `examples/test.l4`, in the repository. The current demo supports only variations of this specific rule format:
 
 ```l4
@@ -66,14 +70,13 @@ To visualize your rule as a ladder diagram:
 - Save the file containing your rule.
 
 - Alternatively, use the "Update Diagram" button in the bottom-right status bar of VSCode (near the notification bell or Prettier controls). Clicking this button generates the diagram in a new panel.
+![alt text](screenshots/update-viz.png)
 
 ## Limitations and Known Issues
 
 The parser supports only a rigid subset of L4 rules, as detailed above.
 
 Diagram updates require manual actions (saving the file or clicking the status bar button).
-
-Direct imports of the ladder diagram library into the extension are currently unsupported, necessitating bundling via esbuild.
 
 ## Future Work
 
