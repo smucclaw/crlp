@@ -30,13 +30,13 @@ This is a prototype of a VSCode webview extension designed to visualize L4 progr
 
 The extension uses a VSCode webview to render L4 rules as ladder diagrams, displaying them in a panel next to the editor. This setup enables the extension to update the visualisation dynamically, reflecting any changes made to the rules in real time.
 
-The ladder diagrams are powered by an npm library developed by Jules and Zeming, available [here](https://github.com/JuliaPoo/ladder-diagram). For integration within the extension, this library has been bundled using esbuild. To update the bundled file in the future, run:
+The ladder diagrams are powered by an npm library developed by Jules and Zeming, available [here](https://github.com/JuliaPoo/ladder-diagram). For use in this extension, the library is bundled using esbuild to generate a standalone JavaScript file. To update the bundled file in the future, you can run:
 
 ```bash
 npx esbuild node_modules/ladder-diagram/js/ladder.js --bundle --format=iife --global-name=LadderDiagram --outfile=media/ladder-diagram.min.js
 ```
 
-The bundled file `ladder-diagram.min.js` will be located in the `media` folder. Direct imports of the ladder diagram library are not currently supported, so it is bundled with esbuild.
+This produces a file named `ladder-diagram.min.js`, located in the `media` folder, which is referenced by the extension.
 
 ### L4 Rule Parsing
 
