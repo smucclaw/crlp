@@ -67,7 +67,7 @@ function getWebviewContent(
     <body>
       <div id="ladder-container" style="width: 100%; height: 100%;"></div>
       <hr />
-      <div id="json">${JSON.stringify(ruleJson, null, 2)}</pre></div>
+      <!-- <div id="json">${JSON.stringify(ruleJson, null, 2)}</pre></div> -->
       <script>
         // const LadderDiagram = LadderDiagram.LadderDiagram;
         console.log("ladder:", LadderDiagram.LadderDiagram);
