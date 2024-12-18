@@ -1,5 +1,23 @@
-EVERY Person
-WHO walks
-AND eats
-OR drinks
-MUST sing
+
+EVERY  Person
+  WHO  walks
+  AND  eats
+   OR  drinks
+ MUST  sing
+
+GIVEN   p  IS A  Person
+DECIDE  p  sings
+    IF  p uses p's voice
+     -  to
+    ++  make one or more sounds
+     -  which are
+    ++  melodious
+
+LET  Oliver          IS A  Natural Person
+HAS  111-22-3333     IS THE  Identification Number
+     1 Contract Way  IS THE  Address
+
+ PARTY  Oliver
+  MUST  Sing
+BEFORE  1 Jan 2025
+
